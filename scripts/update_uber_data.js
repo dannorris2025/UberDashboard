@@ -32,7 +32,9 @@ try {
             service: getVal(['SERVIÇO', 'Service', 'service', 'Serviço', 'servico']),
             costCenter: getVal(['CENTRO DE CUSTO', 'Cost Center', 'costCenter', 'centro_custo', 'CÓDICO DA DESPESA']),
             origin: getVal(['ENDEREÇO DE PARTIDA', 'Origin', 'origin', 'Origem', 'origem']),
-            destination: getVal(['ENDEREÇO DE DESTINO', 'Destination', 'destination', 'Destino', 'destino'])
+            destination: getVal(['ENDEREÇO DE DESTINO', 'Destination', 'destination', 'Destino', 'destino']),
+            area: getVal(['ÁREA', 'AREA', 'Área', 'Area']),
+            subArea: getVal(['SUB ÁREA', 'SUB AREA', 'Sub Área', 'Sub Area'])
         };
     });
 
