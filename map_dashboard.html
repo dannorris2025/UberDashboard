@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAMSA Fleet - Mapa de Zonas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0c;
+            --glass-bg: rgba(20, 20, 25, 0.7);
+            --accent-glow: rgba(0, 210, 255, 0.3);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --border-glow: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: url('C:/Users/Daniel/.gemini/antigravity/brain/4d330c6e-7ac0-4d39-944b-7ea2122bf030/dark_topographic_map_texture_1774805110143.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            padding: 2rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            z-index: 10;
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            color: #00d2ff;
+            text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            font-size: 1.2rem;
+        }
+
+        .map-container {
+            flex: 1;
+            position: relative;
+            padding: 2rem;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .map-grid {
+            position: relative;
+            width: 1000px;
+            height: 600px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 20px;
+            perspective: 1000px;
+            z-index: 5;
+        }
+
+        .zone-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            padding: 1.5rem;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .zone-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--zone-color);
+            box-shadow: 0 0 15px var(--zone-color);
+        }
+
+        .zone-card:hover {
+            transform: translateY(-10px) scale(1.02) rotateX(5deg);
+            border-color: var(--zone-color);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5), 0 0 20px var(--accent-glow);
+            z-index: 100;
+        }
+
+        .zone-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--zone-color);
+            text-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+
+        .region-list {
+            list-style: none;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .region-list li {
+            padding: 2px 0;
+            position: relative;
+            padding-left: 12px;
+        }
+
+        .region-list li::before {
+            content: '›';
+            position: absolute;
+            left: 0;
+            color: var(--zone-color);
+        }
+
+        .status-pill {
+            margin-top: auto;
+            align-self: flex-start;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            margin-top: 15px;
+        }
+
+        .bonus-overlay {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            width: 350px;
+            background: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid #444;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            z-index: 20;
+        }
+
+        .bonus-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            color: #ffd700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255,215,0,0.2);
+            padding-bottom: 0.5rem;
+        }
+
+        .bonus-item {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .bonus-type {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .bonus-meta {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .stars {
+            color: #ffd700;
+            letter-spacing: 2px;
+        }
+
+        /* Micro-animations */
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-5px) rotate(1deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        .connection-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .overlay-vignette {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 100%);
+            pointer-events: none;
+            z-index: 15;
+        }
+
+        .radar-scan {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(transparent, rgba(0, 210, 255, 0.05), transparent);
+            transform: translateY(-100%);
+            animation: scan 8s linear infinite;
+            pointer-events: none;
+            z-index: 14;
+        }
+
+        @keyframes scan {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(100%); }
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <i>◈</i> COMMAND CENTER :: MAPA GEOGRÁFICO
+        </div>
+        <div class="timer" style="font-family: Orbitron; font-size: 0.9rem; color: var(--text-secondary);">
+            SYNC STATUS: <span style="color: #00ff00;">LIVE</span> | LEVEL SECURE
+        </div>
+    </header>
+
+    <div class="map-container">
+        <div class="radar-scan"></div>
+        <div class="overlay-vignette"></div>
+        <svg class="connection-lines" viewBox="0 0 1000 600">
+            <polyline points="250,150 500,150 750,150 750,450 500,450 250,450 250,150" fill="none" stroke="rgba(0, 210, 255, 0.2)" stroke-width="2" stroke-dasharray="5,5" />
+        </svg>
+
+        <div class="map-grid" id="mapGrid">
+            <!-- Zones will be injected here -->
+        </div>
+
+        <div class="bonus-overlay">
+            <div class="bonus-title">
+                <span>★</span> ZONAS DE BÔNUS ATIVAS
+            </div>
+            <div id="bonusContainer">
+                <!-- Bonuses will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const mapData = {
+          "zones": [
+            {
+              "name": "Boro da Providênca",
+              "color": "#6b8e23",
+              "regions": ["Maré", "Manguinhos", "Villaräzsine"]
+            },
+            {
+              "name": "Zona Norte e Leopoldina",
+              "color": "#d2691e",
+              "regions": ["Jacarezêra", "Morros da Grande Tijuca (Borsl)", "Mangüera", "Salo Macaco"]
+            },
+            {
+              "name": "Zona Nordeste",
+              "color": "#b22222",
+              "regions": ["Maré", "Parada do Lucas", "Morro de Unträel", "Complexo do Salgueiro", "Antares"]
+            },
+            {
+              "name": "Centro e Grande Tijuca",
+              "color": "#483d8b",
+              "regions": ["Centro e Grande Tijuca"]
+            },
+            {
+              "name": "Leste Fluminense",
+              "color": "#20b2aa",
+              "regions": ["Coreia", "Vila Kenedy", "Complexo do Viroudaro", "Coruja do Viunueruse"]
+            },
+            {
+              "name": "Zona Sul",
+              "color": "#87ceeb",
+              "regions": ["Anniera", "Morro da Jaoveraquira", "Rocinhia", "Santo Amaro", "Morro de deo Caraco"]
+            },
+            {
+              "name": "Zona Oeste",
+              "color": "#bdb76b",
+              "regions": ["Fim do Dia da Jacarepaguá", "Muzema", "Morro de Sant's do Macaco", "Rio das de Deus", "Rio das Pedras", "Chado da Jacareyusa"]
+            },
+            {
+              "name": "Zona Vila Aliança",
+              "color": "#8b4513",
+              "regions": ["Vila Aliança", "Ciutilarodo", "Bangu, Senador Camará e Santa Cruz", "Clareu Cangacera"]
+            }
+          ],
+          "bonuses": [
+            { "type": "Bônus Alto", "stars": 3, "location": "Zona Nordeste" },
+            { "type": "Bônus Médio/Alto", "stars": 3, "location": "Zona Oeste" },
+            { "type": "Bônus Menor", "stars": 3, "location": "Leste Fluminense" }
+          ]
+        };
+
+        const grid = document.getElementById('mapGrid');
+        mapData.zones.forEach(zone => {
+            const card = document.createElement('div');
+            card.className = 'zone-card';
+            card.style.setProperty('--zone-color', zone.color);
+            
+            card.innerHTML = `
+                <div class="zone-name">${zone.name}</div>
+                <ul class="region-list">
+                    ${zone.regions.map(r => `<li>${r}</li>`).join('')}
+                </ul>
+                <div class="status-pill">Status: Operacional</div>
+            `;
+            grid.appendChild(card);
+        });
+
+        const bonusContainer = document.getElementById('bonusContainer');
+        mapData.bonuses.forEach(bonus => {
+            const item = document.createElement('div');
+            item.className = 'bonus-item';
+            const stars = '★'.repeat(bonus.stars);
+            
+            item.innerHTML = `
+                <div class="bonus-type">${bonus.type}</div>
+                <div class="bonus-meta">
+                    <span>${bonus.location}</span>
+                    <span class="stars">${stars}</span>
+                </div>
+            `;
+            bonusContainer.appendChild(item);
+        });
+    </script>
+</body>
+</html>
