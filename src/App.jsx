@@ -128,23 +128,24 @@ const BudgetChart = ({ filteredData, budgetData, filterOptions }) => {
     const monthLabel = format(parseISO(`2020-${m}-01`), 'MMM', { locale: ptBR });
     const realizado = realizedByMonth[m] || 0;
     const orcado = budgetData[m] || 0;
-    const pct = orcado > 0 ? ((realizado / orcado) * 100).toFixed(1) : null;
-    return { month: monthLabel, Realizado: realizado, Orçado: orcado, pct };
+    const pct = orcado > 0 ? (((realizado - orcado) / orcado) * 100).toFixed(1) : null;
+    return { month: monthLabel, Realizado: realizado, Orçado: orçado, pct };
   }).filter(d => d.Orçado > 0 || d.Realizado > 0);
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload?.length) return null;
     const orc = payload.find(p => p.dataKey === 'Orçado')?.value || 0;
     const real = payload.find(p => p.dataKey === 'Realizado')?.value || 0;
-    const pct = orc > 0 ? ((real / orc) * 100).toFixed(1) : '-';
-    const color = real <= orc ? '#10b981' : '#ef4444';
+    const pct = orc > 0 ? (((real - orc) / orc) * 100).toFixed(1) : '-';
+    const isOver = real > orc;
+    const color = isOver ? '#ef4444' : '#10b981';
     return (
       <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '12px', fontSize: '0.82rem' }}>
         <p style={{ fontWeight: 'bold', marginBottom: '8px', color: '#fff' }}>{label}</p>
         <p style={{ color: 'rgba(255,255,255,0.5)' }}>Orçado: {formatCurrency(orc)}</p>
         <p style={{ color: '#ffb400' }}>Realizado: {formatCurrency(real)}</p>
         <p style={{ color, fontWeight: 'bold', marginTop: '6px' }}>
-          {real <= orc ? '✅' : '🔴'} {pct}% do orçamento
+          {isOver ? '🔴' : '✅'} {pct}%
         </p>
       </div>
     );
