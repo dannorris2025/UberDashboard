@@ -112,7 +112,7 @@ const BudgetChart = ({ filteredData, budgetData, filterOptions }) => {
   if (!budgetData || Object.keys(budgetData).length === 0) {
     return (
       <p style={{ color: '#6b7280', textAlign: 'center', padding: '3rem 1rem', fontSize: '0.9rem' }}>
-        📎 Carregue a planilha de orçamento (Excel) usando o botão acima para ver o confronto Orcado × Realizado.
+        📎 Carregue a planilha de orçamento (Excel) usando o botão acima para ver o confronto Orçado × Realizado.
       </p>
     );
   }
@@ -128,24 +128,23 @@ const BudgetChart = ({ filteredData, budgetData, filterOptions }) => {
     const monthLabel = format(parseISO(`2020-${m}-01`), 'MMM', { locale: ptBR });
     const realizado = realizedByMonth[m] || 0;
     const orcado = budgetData[m] || 0;
-    const pct = orcado > 0 ? (((realizado - orcado) / orcado) * 100).toFixed(1) : null;
-    return { month: monthLabel, Realizado: realizado, Orcado: orcado, pct };
-  }).filter(d => d.Orcado > 0 || d.Realizado > 0);
+    const pct = orcado > 0 ? ((realizado / orcado) * 100).toFixed(1) : null;
+    return { month: monthLabel, Realizado: realizado, Orçado: orcado, pct };
+  }).filter(d => d.Orçado > 0 || d.Realizado > 0);
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload?.length) return null;
-    const orc = payload.find(p => p.dataKey === 'Orcado')?.value || 0;
+    const orc = payload.find(p => p.dataKey === 'Orçado')?.value || 0;
     const real = payload.find(p => p.dataKey === 'Realizado')?.value || 0;
-    const pct = orc > 0 ? (((real - orc) / orc) * 100).toFixed(1) : '-';
-    const isOver = real > orc;
-    const color = isOver ? '#ef4444' : '#10b981';
+    const pct = orc > 0 ? ((real / orc) * 100).toFixed(1) : '-';
+    const color = real <= orc ? '#10b981' : '#ef4444';
     return (
       <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '12px', fontSize: '0.82rem' }}>
         <p style={{ fontWeight: 'bold', marginBottom: '8px', color: '#fff' }}>{label}</p>
-        <p style={{ color: 'rgba(255,255,255,0.5)' }}>Orcado: {formatCurrency(orc)}</p>
+        <p style={{ color: 'rgba(255,255,255,0.5)' }}>Orçado: {formatCurrency(orc)}</p>
         <p style={{ color: '#ffb400' }}>Realizado: {formatCurrency(real)}</p>
         <p style={{ color, fontWeight: 'bold', marginTop: '6px' }}>
-          {isOver ? '🔴' : '✅'} {pct}%
+          {real <= orc ? '✅' : '🔴'} {pct}% do orçamento
         </p>
       </div>
     );
@@ -159,10 +158,10 @@ const BudgetChart = ({ filteredData, budgetData, filterOptions }) => {
         <YAxis stroke="#6b7280" fontSize={11} axisLine={false} tickLine={false} tickFormatter={v => `R$${(v / 1000).toFixed(0)}k`} />
         <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
         <Legend />
-        <Bar dataKey="Orcado" fill="rgba(255,255,255,0.12)" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="Orçado" fill="rgba(255,255,255,0.12)" radius={[4, 4, 0, 0]} />
         <Bar dataKey="Realizado" radius={[4, 4, 0, 0]}>
           {data.map((entry, i) => (
-            <Cell key={i} fill={entry.Realizado <= entry.Orcado ? '#10b981' : '#ef4444'} />
+            <Cell key={i} fill={entry.Realizado <= entry.Orçado ? '#10b981' : '#ef4444'} />
           ))}
         </Bar>
       </BarChart>
@@ -199,24 +198,7 @@ const App = () => {
         setLoading(false);
       }
     };
-    const fetchBudget = async () => {
-      try {
-        const response = await fetch('/orcamento.json');
-        if (!response.ok) return;
-        const json = await response.json();
-        const budget = {};
-        Object.entries(json).forEach(([cc, months]) => {
-          Object.entries(months).forEach(([month, value]) => {
-            budget[month] = (budget[month] || 0) + value;
-          });
-        });
-        if (Object.keys(budget).length > 0) {
-          setBudgetData(budget);
-        }
-      } catch (err) { console.error('Erro ao carregar orçamento:', err); }
-    };
     fetchData();
-    fetchBudget();
   }, []);
 
   // ── Normalize
@@ -582,10 +564,10 @@ const App = () => {
           </div>
         </div>
 
-        {/* Orcado X Realizado */}
+        {/* Orçado X Realizado */}
         <div className="glass-card chart-span-8">
           <h2 className="chart-title">
-            <Target size={18} color="#10b981" /> Orcado × Realizado
+            <Target size={18} color="#10b981" /> Orçado × Realizado
             {Object.keys(budgetData).length === 0 && (
               <span style={{ marginLeft: '1rem', fontSize: '0.75rem', background: 'rgba(16,185,129,0.1)', color: '#10b981', padding: '2px 8px', borderRadius: '4px', cursor: 'pointer' }}
                 onClick={() => budgetInputRef.current.click()}>
