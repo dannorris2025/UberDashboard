@@ -198,7 +198,24 @@ const App = () => {
         setLoading(false);
       }
     };
+    const fetchBudget = async () => {
+      try {
+        const response = await fetch('/orcamento.json');
+        if (!response.ok) return;
+        const json = await response.json();
+        const budget = {};
+        Object.entries(json).forEach(([cc, months]) => {
+          Object.entries(months).forEach(([month, value]) => {
+            budget[month] = (budget[month] || 0) + value;
+          });
+        });
+        if (Object.keys(budget).length > 0) {
+          setBudgetData(budget);
+        }
+      } catch (err) { console.error('Erro ao carregar orçamento:', err); }
+    };
     fetchData();
+    fetchBudget();
   }, []);
 
   // ── Normalize
