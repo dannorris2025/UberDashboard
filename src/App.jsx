@@ -112,7 +112,7 @@ const BudgetChart = ({ filteredData, budgetData, filterOptions }) => {
   if (!budgetData || Object.keys(budgetData).length === 0) {
     return (
       <p style={{ color: '#6b7280', textAlign: 'center', padding: '3rem 1rem', fontSize: '0.9rem' }}>
-        📎 Carregue a planilha de orçamento (Excel) usando o botão acima para ver o confronto Orçado × Realizado.
+        📎 Carregue a planilha de orçamento (Excel) usando o botão acima para ver o confronto Orcado × Realizado.
       </p>
     );
   }
@@ -129,12 +129,12 @@ const BudgetChart = ({ filteredData, budgetData, filterOptions }) => {
     const realizado = realizedByMonth[m] || 0;
     const orcado = budgetData[m] || 0;
     const pct = orcado > 0 ? (((realizado - orcado) / orcado) * 100).toFixed(1) : null;
-    return { month: monthLabel, Realizado: realizado, Orçado: orçado, pct };
-  }).filter(d => d.Orçado > 0 || d.Realizado > 0);
+    return { month: monthLabel, Realizado: realizado, Orcado: orcado, pct };
+  }).filter(d => d.Orcado > 0 || d.Realizado > 0);
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload?.length) return null;
-    const orc = payload.find(p => p.dataKey === 'Orçado')?.value || 0;
+    const orc = payload.find(p => p.dataKey === 'Orcado')?.value || 0;
     const real = payload.find(p => p.dataKey === 'Realizado')?.value || 0;
     const pct = orc > 0 ? (((real - orc) / orc) * 100).toFixed(1) : '-';
     const isOver = real > orc;
@@ -142,7 +142,7 @@ const BudgetChart = ({ filteredData, budgetData, filterOptions }) => {
     return (
       <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '12px', fontSize: '0.82rem' }}>
         <p style={{ fontWeight: 'bold', marginBottom: '8px', color: '#fff' }}>{label}</p>
-        <p style={{ color: 'rgba(255,255,255,0.5)' }}>Orçado: {formatCurrency(orc)}</p>
+        <p style={{ color: 'rgba(255,255,255,0.5)' }}>Orcado: {formatCurrency(orc)}</p>
         <p style={{ color: '#ffb400' }}>Realizado: {formatCurrency(real)}</p>
         <p style={{ color, fontWeight: 'bold', marginTop: '6px' }}>
           {isOver ? '🔴' : '✅'} {pct}%
@@ -159,10 +159,10 @@ const BudgetChart = ({ filteredData, budgetData, filterOptions }) => {
         <YAxis stroke="#6b7280" fontSize={11} axisLine={false} tickLine={false} tickFormatter={v => `R$${(v / 1000).toFixed(0)}k`} />
         <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
         <Legend />
-        <Bar dataKey="Orçado" fill="rgba(255,255,255,0.12)" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="Orcado" fill="rgba(255,255,255,0.12)" radius={[4, 4, 0, 0]} />
         <Bar dataKey="Realizado" radius={[4, 4, 0, 0]}>
           {data.map((entry, i) => (
-            <Cell key={i} fill={entry.Realizado <= entry.Orçado ? '#10b981' : '#ef4444'} />
+            <Cell key={i} fill={entry.Realizado <= entry.Orcado ? '#10b981' : '#ef4444'} />
           ))}
         </Bar>
       </BarChart>
@@ -582,10 +582,10 @@ const App = () => {
           </div>
         </div>
 
-        {/* Orçado X Realizado */}
+        {/* Orcado X Realizado */}
         <div className="glass-card chart-span-8">
           <h2 className="chart-title">
-            <Target size={18} color="#10b981" /> Orçado × Realizado
+            <Target size={18} color="#10b981" /> Orcado × Realizado
             {Object.keys(budgetData).length === 0 && (
               <span style={{ marginLeft: '1rem', fontSize: '0.75rem', background: 'rgba(16,185,129,0.1)', color: '#10b981', padding: '2px 8px', borderRadius: '4px', cursor: 'pointer' }}
                 onClick={() => budgetInputRef.current.click()}>
